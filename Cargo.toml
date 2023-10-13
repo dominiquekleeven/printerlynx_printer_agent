@@ -1,0 +1,17 @@
+[package]
+name = "printerlynx_printer_agent"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dotenvy = "0.15.7"
+thiserror = "1.0.48"
+usb = "0.2.2"
+serde = { version = "1.0.188", features = ["derive"] }
+tokio-serial = { version = "5.4.4", features = ['bytes', "default", "libudev", "codec"] }
+tokio = { version = "1.32.0", features = ["full"] }
+tokio-util = { version = "0.7.8", features = ["io"] }
+tracing = "0.1.37"
+tracing-subscriber = {version = "0.3.17", features = ["env-filter", "default"]}
