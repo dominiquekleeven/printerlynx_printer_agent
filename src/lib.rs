@@ -1,5 +1,5 @@
 use dotenvy::dotenv;
-use tokio_serial::available_ports;
+use tokio_serial::{available_ports, SerialPortType};
 use tracing::info;
 
 pub mod common;
@@ -11,8 +11,6 @@ pub async fn start() {
 
     info!("Starting up...");
     check_serial_connections();
-    
-    todo!("Register the agent with the server, then start the agent.")
 }
 
 /// Checks and logs the connected serial devices/ports.
@@ -25,6 +23,11 @@ pub fn check_serial_connections() {
 
     // list serial ports
     for p in ports {
-        info!("Serial port: {:?}", p)
+        match p.port_type {
+            SerialPortType::UsbPort(usb_info) => {
+                info!("USB device: {:?}", usb_info);
+            }
+            _ => {}
+        }
     }
 }
