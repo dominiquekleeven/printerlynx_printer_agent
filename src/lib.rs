@@ -1,5 +1,5 @@
 use dotenvy::dotenv;
-use tokio_serial::{available_ports, SerialPortType};
+use serialport::{available_ports, SerialPortType};
 use tracing::info;
 
 pub mod common;
@@ -20,15 +20,17 @@ pub fn check_serial_connections() {
     let ports = available_ports().expect("No ports found!");
 
     info!("Detected {} serial ports", ports.len());
+    for port in ports {
 
-    // list serial ports
-    for p in ports {
-        match p.port_type {
-            SerialPortType::UsbPort(usb_info) => {
-                info!("Port name: {}", p.port_name);
-                info!("USB device: {:?}", usb_info);
-            }
+        match port.port_type {
+            SerialPortType::UsbPort(usb_port_info) => {
+                info!("Port: {}", port.port_name);
+                info!("USB device: {:?}", usb_port_info);
+            },
             _ => {}
         }
+
     }
+
+
 }
