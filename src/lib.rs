@@ -3,6 +3,7 @@ use tokio_serial::available_ports;
 use tracing::info;
 
 pub mod common;
+pub mod infra;
 
 pub async fn start() {
     dotenv().expect(".env file not found");
@@ -14,7 +15,7 @@ pub async fn start() {
     todo!("Register the agent with the server, then start the agent.")
 }
 
-pub fn check_serial_connections() -> bool {
+pub fn check_serial_connections() {
     let ports = available_ports().expect("No ports found!");
 
     // It should also be noted that on macOS, both the Callout (/dev/cu.*) and Dial-in ports (/dev/tty.*)
@@ -25,6 +26,4 @@ pub fn check_serial_connections() -> bool {
     for p in ports {
         info!("Serial port: {:?}", p)
     }
-
-    true
 }
