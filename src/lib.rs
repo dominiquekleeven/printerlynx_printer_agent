@@ -14,11 +14,11 @@ pub async fn start() {
 }
 
 /// Checks and logs the connected serial devices/ports.
+/// - It should also be noted that on macOS, both the Callout (/dev/cu.*) and Dial-in ports (/dev/tty.*)
+/// ports are enumerated, resulting in two available ports per connected serial device.
 pub fn check_serial_connections() {
     let ports = available_ports().expect("No ports found!");
 
-    // It should also be noted that on macOS, both the Callout (/dev/cu.*) and Dial-in ports (/dev/tty.*)
-    // ports are enumerated, resulting in two available ports per connected serial device.
     info!("Detected {} serial ports", ports.len());
 
     // list serial ports
