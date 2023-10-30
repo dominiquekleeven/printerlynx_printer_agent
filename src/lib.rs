@@ -25,6 +25,7 @@ pub fn check_serial_connections() {
     for p in ports {
         match p.port_type {
             SerialPortType::UsbPort(usb_info) => {
+                info!("Port name: {}", p.port_name);
                 info!("USB device: {:?}", usb_info);
             }
             _ => {}
