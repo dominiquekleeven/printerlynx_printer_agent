@@ -2,11 +2,10 @@ use dotenvy::dotenv;
 use serialport::{available_ports, SerialPortType};
 use tracing::{info, warn};
 
-pub mod common;
-pub mod infra;
-pub mod domain;
 pub mod adapters;
-
+pub mod common;
+pub mod domain;
+pub mod infra;
 
 pub async fn start() {
     dotenv().expect(".env file not found");
@@ -18,12 +17,13 @@ pub async fn start() {
 /// Checks and logs the connected serial devices/ports.
 pub fn check_serial_connections() {
     let ports = available_ports().expect("No ports found!");
-    let usb_port_count = ports.iter().filter(|port| {
-        match port.port_type {
+    let usb_port_count = ports
+        .iter()
+        .filter(|port| match port.port_type {
             SerialPortType::UsbPort(_) => true,
-            _ => false
-        }
-    }).count();
+            _ => false,
+        })
+        .count();
 
     info!("Found {} USB ports", usb_port_count);
 
