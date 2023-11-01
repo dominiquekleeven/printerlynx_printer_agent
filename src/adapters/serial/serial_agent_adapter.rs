@@ -23,7 +23,8 @@ impl SerialAgentAdapter {
     pub fn get_usb_port_count(ports: &[SerialPortInfo]) -> usize {
         ports
             .iter()
-            .filter(|port| matches!(port.port_type, SerialPortType::UsbPort(_))).count()
+            .filter(|port| matches!(port.port_type, SerialPortType::UsbPort(_)))
+            .count()
     }
 }
 

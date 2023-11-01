@@ -8,4 +8,3 @@ pub struct Printer {
     pub serial_port: SerialPortInfo,
     pub baud_rate: u32,
 }
-
