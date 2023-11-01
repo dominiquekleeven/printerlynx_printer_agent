@@ -10,5 +10,11 @@ pub struct ErrorMessage {
 #[derive(Error, Debug)]
 pub enum AppError {
     #[error("{message:}")]
-    InternalServer { message: String },
+    AdapterError { message: String },
+    #[error("{message:}")]
+    DeviceError { message: String },
+    #[error("{message:}")]
+    RegistrationError { message: String },
+    #[error("{message:}")]
+    InternalError { message: String },
 }
