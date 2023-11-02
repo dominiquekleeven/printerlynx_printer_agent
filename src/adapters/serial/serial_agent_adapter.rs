@@ -29,6 +29,10 @@ impl SerialAgentAdapter {
 }
 
 impl AgentAdapter for SerialAgentAdapter {
+    fn name(&self) -> String {
+        "Serial IO Adapter".to_string()
+    }
+
     fn setup(&self) -> Result<(), AppError> {
         info!("Setting up serial agent adapter");
         let ports = available_ports().expect("No io ports found!");

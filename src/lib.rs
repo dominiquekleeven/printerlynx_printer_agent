@@ -14,13 +14,16 @@ pub async fn start() {
     tracing_subscriber::fmt().compact().with_target(true).init();
     info!("Starting up...");
 
-    // currently hardcoded to use the serial adapter, use env vars to switch between adapters
+    // currently hardcoded to use the serial adapter, use env vars/toml/cli to switch between adapters
     let adapter = SerialAgentAdapter::default();
-    init_adapter(Box::new(adapter)).await.expect("Failed to initialize adapter");
+    init_adapter(Box::new(adapter))
+        .await
+        .expect("Failed to initialize adapter");
 }
 
-
 pub async fn init_adapter(adapter: Box<dyn AgentAdapter>) -> Result<(), AppError> {
+    info!("Initializing adapter: {}", adapter.name());
+
     match adapter.setup() {
         Ok(_) => {
             info!("Adapter setup finished");
