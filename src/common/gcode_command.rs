@@ -11,12 +11,12 @@ pub enum GcodeCommand {
 
 impl GcodeCommand {
     #[allow(dead_code)]
-    fn value(&self) -> String {
+    pub fn value(&self) -> &[u8] {
         match self {
-            GcodeCommand::AutoHome => String::from("G28"),
-            GcodeCommand::AutoBedLeveling => String::from("G29"),
-            GcodeCommand::SystemInfo => String::from("M115"),
-            GcodeCommand::DisplayMessage(message) => format!("M117 {}", message),
+            GcodeCommand::AutoHome => b"G28\n",
+            GcodeCommand::AutoBedLeveling => b"G29\n",
+            GcodeCommand::SystemInfo => b"M115\n",
+            GcodeCommand::DisplayMessage(message) => message.as_bytes(),
         }
     }
 }

@@ -1,4 +1,4 @@
-use serialport::SerialPortInfo;
+use tokio_serial::SerialPortInfo;
 
 pub struct Printer {
     pub name: String,
