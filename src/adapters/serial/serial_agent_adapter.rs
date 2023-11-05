@@ -1,11 +1,11 @@
 use async_trait::async_trait;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
-use tokio_serial::{available_ports, SerialPortBuilderExt, SerialPortInfo, SerialPortType};
+use tokio_serial::{available_ports, SerialPortBuilderExt, SerialPortInfo, SerialPortType, SerialStream};
 use tracing::{info, warn};
 
 use crate::adapters::agent_adapter::AgentAdapter;
 use crate::common::app_error::AppError;
-use crate::common::gcode_command::GcodeCommand::{AutoHome, SystemInfo};
+use crate::common::gcode_command::GcodeCommand::{AutoHome};
 
 pub struct SerialAgentAdapter {}
 
@@ -27,19 +27,35 @@ impl SerialAgentAdapter {
             .count()
     }
 
-    #[allow(clippy::unused_io_amount)] // we're controlling the buffer size ourselves
-    pub async fn init_serial_comm(port_name: String) -> Result<(), AppError> {
-        info!("Initializing serial communication on {}", &port_name);
-
-        let mut port = tokio_serial::new(port_name.clone(), 115_200)
+    pub async fn open_serial_port(port_name: &str) -> Result<SerialStream, AppError>
+    {
+        let port = tokio_serial::new(port_name, 115_200)
             .timeout(std::time::Duration::from_millis(250))
-            .open_native_async()
-            .expect("Failed to open serial port");
+            .open_native_async();
 
-        let mut buf: Vec<u8> = vec![0; 1024];
+        match port {
+            Ok(port) => {
+                info!("Serial port {} opened successfully", port_name);
+                Ok(port)
+            }
+            Err(e) => {
+                warn!("Failed to open serial port: {}", e);
+                Err(AppError::AdapterError {
+                    message: format!("Failed to open serial port: {}", e),
+                })
+            }
+        }
+    }
+
+    #[allow(clippy::unused_io_amount)] // we're controlling the buffer size ourselves
+    pub async fn start_serial_comm(port_name: String) -> Result<(), AppError> {
+        info!("Initializing serial communication on {}", &port_name);
+        let mut port = SerialAgentAdapter::open_serial_port(&port_name).await?;
+        let mut buf: Vec<u8> = vec![0; 256];
+
         info!(
-            "Serial communication initialized on {} with baud {}",
-            &port_name, 115_200
+            "Serial communication initialized on {} with baud {} and buffer size {}",
+            &port_name, 115_200, 256
         );
 
         let mut received_data = String::new();
@@ -47,18 +63,13 @@ impl SerialAgentAdapter {
 
         loop {
             if !has_checked_comm {
-                port.write_all(SystemInfo.value())
-                    .await
-                    .expect("Failed to write to serial port");
-                info!("[Sent]: SystemInfo");
                 port.write_all(AutoHome.value())
                     .await
                     .expect("Failed to write to serial port");
-                info!("[Sent]: AutoHome");
+                info!("Sent auto home command to printer");
                 has_checked_comm = true;
             }
 
-            // read up to 1024 bytes
             let n = port.read(&mut buf[..]).await.unwrap();
             if n == 0 {
                 continue;
@@ -68,6 +79,12 @@ impl SerialAgentAdapter {
 
             if received_data.contains('\n') {
                 info!("[Received]: {}", received_data.replace('\n', ""));
+
+                // if 'ok'
+                if received_data.contains("ok") {
+                    info!("* Printer is ready for next command");
+                }
+
                 received_data.clear(); // Clear the buffer
             }
         }
@@ -101,7 +118,7 @@ impl AgentAdapter for SerialAgentAdapter {
                 info!("Port: {}", port.port_name);
                 info!("USB device: {:?}", usb_port_info);
 
-                SerialAgentAdapter::init_serial_comm(port.port_name).await?;
+                SerialAgentAdapter::start_serial_comm(port.port_name).await?;
             }
         }
 
