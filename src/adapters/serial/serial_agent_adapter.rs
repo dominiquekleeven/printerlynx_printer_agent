@@ -57,7 +57,6 @@ impl SerialAgentAdapter {
             "Serial communication initialized on {} with baud {} and buffer size {}",
             &port_name, 115_200, 256
         );
-
         let mut received_data = String::new();
         let mut has_checked_comm = false;
 
