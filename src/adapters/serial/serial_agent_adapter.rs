@@ -88,6 +88,7 @@ impl SerialAgentAdapter {
             }
         }
     }
+
 }
 
 #[async_trait]
@@ -128,3 +129,7 @@ impl AgentAdapter for SerialAgentAdapter {
         Ok(())
     }
 }
+
+
+
+
