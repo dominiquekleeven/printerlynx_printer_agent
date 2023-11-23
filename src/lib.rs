@@ -17,24 +17,24 @@ pub async fn start() {
 
     // currently hardcoded to use the serial adapter, use env vars/toml/cli to switch between adapters
     let adapter = SerialAgentAdapter::new();
-    init_adapter(Box::new(adapter))
+    start_adapter(Box::new(adapter))
         .await
-        .expect("Failed to initialize adapter");
+        .expect("Failed to start adapter");
 }
 
-pub async fn init_adapter(adapter: Box<dyn AgentAdapter>) -> Result<(), AppError> {
-    info!("Initializing adapter: {}", adapter.name().await);
-
-    //attempt to setup the adapter, if it fails, retry in 10 seconds
-
+pub async fn start_adapter(adapter: Box<dyn AgentAdapter>) -> Result<(), AppError> {
+    info!("Attempting to start adapter: {}", adapter.name());
     loop {
-        match adapter.setup().await {
+        match adapter.start().await {
             Ok(_) => {
-                info!("Adapter setup finished");
+                info!("Started adapter: {}", adapter.name());
                 return Ok(());
             }
             Err(e) => {
-                warn!("Failed to setup adapter: {}, retrying in 10 seconds..", e);
+                warn!(
+                    "Failed to start adapter, reason: {}, retrying in 10 seconds..",
+                    e
+                );
                 tokio::time::sleep(std::time::Duration::from_secs(10)).await; // wait 10 seconds before retrying
             }
         }

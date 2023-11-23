@@ -20,21 +20,22 @@ impl Default for SerialAgentAdapter {
 /// AgentAdapter implementation for SerialAgentAdapter
 #[async_trait]
 impl AgentAdapter for SerialAgentAdapter {
-    async fn name(&self) -> String {
+    fn name(&self) -> String {
         "Serial IO Adapter".to_string()
     }
 
-    /// Setup the serial agent adapter
-    async fn setup(&self) -> Result<(), AppError> {
-        info!("Setting up serial agent adapter");
+    /// Start the serial agent adapter
+    async fn start(&self) -> Result<(), AppError> {
+        info!("Starting serial agent adapter");
         let ports = available_ports().expect("No io ports found!");
         let usb_port_count = SerialAgentAdapter::get_usb_port_count(&ports).await;
 
         info!("Found {} USB ports", usb_port_count);
         if usb_port_count == 0 {
-            warn!("No USB ports found, serial adapter for the print agent requires active USB connections!");
+            warn!("No USB ports found, serial adapter requires active USB connections");
             return Err(AppError::AdapterError {
-                message: "No USB ports found, serial adapter for the print agent requires active USB connections!".to_string(),
+                message: "No USB ports found, serial adapter requires active USB connections"
+                    .to_string(),
             });
         }
 
@@ -46,10 +47,9 @@ impl AgentAdapter for SerialAgentAdapter {
                 info!("Port: {}", port.port_name);
                 info!("USB device: {:?}", usb_port_info);
 
-                SerialAgentAdapter::start_serial_comm(port.port_name).await?;
+                SerialAgentAdapter::start_serial_communication(port.port_name).await?;
             }
         }
-
         Ok(())
     }
 
@@ -68,9 +68,9 @@ impl SerialAgentAdapter {
     /// Start the serial communication with the 3d printer on the given port
     /// Main loop for the serial communication
     #[allow(clippy::unused_io_amount)] // we're controlling the buffer size ourselves
-    async fn start_serial_comm(port_name: String) -> Result<(), AppError> {
+    async fn start_serial_communication(port_name: String) -> Result<(), AppError> {
         info!("Initializing serial communication on {}", &port_name);
-        let mut port = SerialAgentAdapter::open_serial_port(&port_name).await?;
+        let mut open_port = SerialAgentAdapter::open_serial_port(&port_name).await?;
 
         info!(
             "Serial communication initialized on {} with baud {} and buffer size {}",
@@ -81,9 +81,9 @@ impl SerialAgentAdapter {
         loop {
             if !has_checked_comm {
                 // We always send an auto home command to the printer to make sure it's in a known state.
-                SerialAgentAdapter::write_serial_port(&mut port, AutoHome.value()).await?;
+                SerialAgentAdapter::write_serial_port(&mut open_port, AutoHome.value()).await?;
 
-                // let test_gcode_map = get_gcode_test_file().await?;
+                // let test_gcode_map = get_gcode_hashmap_test_file().await?;
                 // let total_commands = test_gcode_map.len();
                 // info!("Test gcode written to memory, commands: {}", total_commands);
                 // for i in 0..total_commands {
@@ -91,7 +91,7 @@ impl SerialAgentAdapter {
                 //     let mut data = String::new();
                 //
                 //     loop {
-                //         data = SerialAgentAdapter::read_serial_port(&mut port).await?;
+                //         data = SerialAgentAdapter::read_serial_port(&mut open_port).await?;
                 //         if data.contains("cold extrusion") {
                 //             panic!("Cold extrusion error, aborting!")
                 //         }
@@ -99,14 +99,13 @@ impl SerialAgentAdapter {
                 //             break;
                 //         }
                 //     }
-                //     SerialAgentAdapter::write_serial_port(&mut port, command.as_bytes()).await?;
+                //     SerialAgentAdapter::write_serial_port(&mut open_port, command.as_bytes()).await?;
                 //     info!("Progress {}/{}", i + 1, total_commands);
                 // }
 
                 has_checked_comm = true;
             }
-
-            SerialAgentAdapter::read_serial_port(&mut port).await?;
+            SerialAgentAdapter::read_serial_port(&mut open_port).await?;
         }
     }
 

@@ -5,7 +5,7 @@ use tokio::io::AsyncReadExt;
 
 use crate::common::app_error::AppError;
 
-pub async fn get_gcode_from_file(file: &str) -> Result<HashMap<usize, String>, AppError> {
+pub async fn parse_gcode_from_file(file: &str) -> Result<HashMap<usize, String>, AppError> {
     let mut commands = HashMap::new();
     let mut file = File::open(file).await.expect("Unable to open file");
     let mut contents = String::new();
@@ -31,7 +31,7 @@ pub async fn get_gcode_from_file(file: &str) -> Result<HashMap<usize, String>, A
     Ok(commands)
 }
 
-pub async fn get_gcode_test_file() -> Result<HashMap<usize, String>, AppError> {
-    let commands = get_gcode_from_file("test_files/benchy.gcode").await?;
+pub async fn get_gcode_hashmap_test_file() -> Result<HashMap<usize, String>, AppError> {
+    let commands = parse_gcode_from_file("test_files/benchy.gcode").await?;
     Ok(commands)
 }

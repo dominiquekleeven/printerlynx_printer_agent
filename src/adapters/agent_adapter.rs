@@ -5,7 +5,7 @@ use async_trait::async_trait;
 
 #[async_trait]
 pub trait AgentAdapter {
-    async fn name(&self) -> String;
-    async fn setup(&self) -> Result<(), AppError>;
+    fn name(&self) -> String;
+    async fn start(&self) -> Result<(), AppError>;
     async fn teardown(&self) -> Result<(), AppError>;
 }
