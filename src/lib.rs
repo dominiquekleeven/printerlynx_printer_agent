@@ -1,8 +1,9 @@
+use dotenvy::dotenv;
+use tracing::{info, warn};
+
 use crate::adapters::agent_adapter::AgentAdapter;
 use crate::adapters::serial::serial_agent_adapter::SerialAgentAdapter;
 use crate::common::app_error::AppError;
-use dotenvy::dotenv;
-use tracing::{info, warn};
 
 pub mod adapters;
 pub mod common;
@@ -24,14 +25,18 @@ pub async fn start() {
 pub async fn init_adapter(adapter: Box<dyn AgentAdapter>) -> Result<(), AppError> {
     info!("Initializing adapter: {}", adapter.name().await);
 
-    match adapter.setup().await {
-        Ok(_) => {
-            info!("Adapter setup finished");
-            Ok(())
-        }
-        Err(e) => {
-            warn!("Failed to setup adapter: {}", e);
-            Err(e)
+    //attempt to setup the adapter, if it fails, retry in 10 seconds
+
+    loop {
+        match adapter.setup().await {
+            Ok(_) => {
+                info!("Adapter setup finished");
+                return Ok(());
+            }
+            Err(e) => {
+                warn!("Failed to setup adapter: {}, retrying in 10 seconds..", e);
+                tokio::time::sleep(std::time::Duration::from_secs(10)).await; // wait 10 seconds before retrying
+            }
         }
     }
 }
