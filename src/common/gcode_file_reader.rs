@@ -31,7 +31,7 @@ pub async fn parse_gcode_from_file(file: &str) -> Result<HashMap<usize, String>,
     Ok(commands)
 }
 
-pub async fn get_gcode_hashmap_test_file() -> Result<HashMap<usize, String>, AppError> {
-    let commands = parse_gcode_from_file("test_files/benchy.gcode").await?;
+pub async fn get_gcode_map_from_file(file: &str) -> Result<HashMap<usize, String>, AppError> {
+    let commands = parse_gcode_from_file(file).await?;
     Ok(commands)
 }

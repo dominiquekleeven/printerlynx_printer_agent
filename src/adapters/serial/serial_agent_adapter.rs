@@ -8,6 +8,7 @@ use tracing::{info, warn};
 use crate::adapters::agent_adapter::AgentAdapter;
 use crate::common::app_error::AppError;
 use crate::common::gcode_command::GcodeCommand::AutoHome;
+use crate::common::gcode_file_reader::get_gcode_map_from_file;
 
 pub struct SerialAgentAdapter {}
 
@@ -83,15 +84,19 @@ impl SerialAgentAdapter {
                 // We always send an auto home command to the printer to make sure it's in a known state.
                 SerialAgentAdapter::write_serial_port(&mut open_port, AutoHome.value()).await?;
 
-                // let test_gcode_map = get_gcode_hashmap_test_file().await?;
+                // let test_gcode_map = get_gcode_map_from_file("test_files/cube.gcode").await?;
                 // let total_commands = test_gcode_map.len();
                 // info!("Test gcode written to memory, commands: {}", total_commands);
+                // info!("Starting test print");
+                //
+                // let mut processed_commands_per_second = 0;
+                // let mut time = std::time::Instant::now();
+                //
                 // for i in 0..total_commands {
                 //     let command = test_gcode_map.get(&i).unwrap();
-                //     let mut data = String::new();
                 //
                 //     loop {
-                //         data = SerialAgentAdapter::read_serial_port(&mut open_port).await?;
+                //         let data = SerialAgentAdapter::read_serial_port(&mut open_port).await?;
                 //         if data.contains("cold extrusion") {
                 //             panic!("Cold extrusion error, aborting!")
                 //         }
@@ -99,8 +104,24 @@ impl SerialAgentAdapter {
                 //             break;
                 //         }
                 //     }
-                //     SerialAgentAdapter::write_serial_port(&mut open_port, command.as_bytes()).await?;
-                //     info!("Progress {}/{}", i + 1, total_commands);
+                //     SerialAgentAdapter::write_serial_port(&mut open_port, command.as_bytes())
+                //         .await?;
+                //     info!("Command sent: {}", command.trim());
+                //     info!(
+                //         "Progress {}/{}, {}%",
+                //         i + 1,
+                //         total_commands,
+                //         ((i + 1) as f32 / total_commands as f32 * 100.0).round()
+                //     );
+                //
+                //     processed_commands_per_second += 1;
+                //     if processed_commands_per_second == 10 {
+                //         let elapsed = time.elapsed().as_secs_f32();
+                //         let commands_per_second = processed_commands_per_second as f32 / elapsed;
+                //         info!("Commands/second: {}", commands_per_second);
+                //         processed_commands_per_second = 0;
+                //         time = std::time::Instant::now();
+                //     }
                 // }
 
                 has_checked_comm = true;
@@ -131,10 +152,7 @@ impl SerialAgentAdapter {
 
     async fn write_serial_port(port: &mut SerialStream, data: &[u8]) -> Result<(), AppError> {
         match port.write_all(data).await {
-            Ok(_) => {
-                let s = String::from_utf8_lossy(data).replace('\n', "");
-                info!("[Sent]: {}", s);
-            }
+            Ok(_) => {}
             Err(e) => {
                 warn!("Failed to write to serial port: {}", e);
                 return Err(AppError::AdapterError {
@@ -167,7 +185,6 @@ impl SerialAgentAdapter {
         received_data.push_str(&s); // Append the received data to the buffer
 
         if received_data.contains('\n') {
-            info!("[Received]: {}", received_data.replace('\n', ""));
             return Ok(received_data);
         }
         Ok(received_data)
