@@ -8,7 +8,6 @@ use tracing::{info, warn};
 use crate::adapters::agent_adapter::AgentAdapter;
 use crate::common::app_error::AppError;
 use crate::common::gcode_command::GcodeCommand::AutoHome;
-use crate::common::gcode_file_reader::get_gcode_map_from_file;
 
 pub struct SerialAgentAdapter {}
 
