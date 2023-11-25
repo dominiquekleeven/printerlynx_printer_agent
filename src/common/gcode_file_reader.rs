@@ -5,6 +5,7 @@ use tokio::io::AsyncReadExt;
 
 use crate::common::app_error::AppError;
 
+/// Parses a gcode file into a hashmap of line numbers and gcode commands
 pub async fn parse_gcode_from_file(file: &str) -> Result<HashMap<usize, String>, AppError> {
     let mut commands = HashMap::new();
     let mut file = File::open(file).await.expect("Unable to open file");
