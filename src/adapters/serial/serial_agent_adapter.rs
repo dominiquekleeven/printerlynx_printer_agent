@@ -8,6 +8,7 @@ use tracing::{info, warn};
 use crate::adapters::agent_adapter::AgentAdapter;
 use crate::common::app_error::AppError;
 use crate::common::gcode_command::GcodeCommand::AutoHome;
+use crate::common::gcode_file_reader::get_gcode_from_file;
 
 pub struct SerialAgentAdapter {}
 
@@ -83,7 +84,7 @@ impl SerialAgentAdapter {
                 // We always send an auto home command to the printer to make sure it's in a known state.
                 SerialAgentAdapter::write_serial_port(&mut open_port, AutoHome.value()).await?;
 
-                // let test_gcode_map = get_gcode_map_from_file("test_files/cube.gcode").await?;
+                // let test_gcode_map = get_gcode_from_file("test_files/cube.gcode").await?;
                 // let total_commands = test_gcode_map.len();
                 // info!("Test gcode written to memory, commands: {}", total_commands);
                 // info!("Starting test print");
@@ -91,9 +92,7 @@ impl SerialAgentAdapter {
                 // let mut processed_commands_per_second = 0;
                 // let mut time = std::time::Instant::now();
                 //
-                // for i in 0..total_commands {
-                //     let command = test_gcode_map.get(&i).unwrap();
-                //
+                // for (i, command) in test_gcode_map.iter().enumerate() {
                 //     loop {
                 //         let data = SerialAgentAdapter::read_serial_port(&mut open_port).await?;
                 //         if data.contains("cold extrusion") {

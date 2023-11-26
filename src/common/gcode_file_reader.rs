@@ -1,13 +1,11 @@
-use std::collections::HashMap;
-
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 
 use crate::common::app_error::AppError;
 
 /// Parses a gcode file into a hashmap of line numbers and gcode commands
-pub async fn parse_gcode_from_file(file: &str) -> Result<HashMap<usize, String>, AppError> {
-    let mut commands = HashMap::new();
+pub async fn parse_gcode_from_file(file: &str) -> Result<Vec<String>, AppError> {
+    let mut commands: Vec<String> = Vec::new();
     let mut file = File::open(file).await.expect("Unable to open file");
     let mut contents = String::new();
     file.read_to_string(&mut contents)
@@ -32,7 +30,7 @@ pub async fn parse_gcode_from_file(file: &str) -> Result<HashMap<usize, String>,
     Ok(commands)
 }
 
-pub async fn get_gcode_map_from_file(file: &str) -> Result<HashMap<usize, String>, AppError> {
+pub async fn get_gcode_from_file(file: &str) -> Result<Vec<String>, AppError> {
     let commands = parse_gcode_from_file(file).await?;
     Ok(commands)
 }
