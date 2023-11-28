@@ -16,14 +16,19 @@ pub async fn start() {
     info!("Starting up...");
 
     // currently hardcoded to use the serial adapter, use env vars/toml/cli to switch between adapters
-    let adapter = SerialAgentAdapter::new();
+    let adapter = SerialAgentAdapter::default();
     start_adapter(Box::new(adapter))
         .await
         .expect("Failed to start adapter");
 }
 
+pub async fn connect_to_core() {
+    info!("Connecting with backend");
+}
+
 pub async fn start_adapter(adapter: Box<dyn AgentAdapter>) -> Result<(), AppError> {
     info!("Attempting to start adapter: {}", adapter.name());
+
     loop {
         match adapter.start().await {
             Ok(_) => {

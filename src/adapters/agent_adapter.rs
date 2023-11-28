@@ -4,7 +4,7 @@ use crate::common::app_error::AppError;
 use async_trait::async_trait;
 
 #[async_trait]
-pub trait AgentAdapter {
+pub trait AgentAdapter: {
     fn name(&self) -> String;
     async fn start(&self) -> Result<(), AppError>;
     async fn teardown(&self) -> Result<(), AppError>;
