@@ -6,12 +6,13 @@ use tokio::sync::Mutex;
 use tokio_serial::{
     available_ports, SerialPortBuilderExt, SerialPortInfo, SerialPortType, SerialStream,
 };
-use tracing::{info, warn};
+use tracing::{error, info, warn};
 
 use crate::common::app_error::AppError;
 use crate::driver::adapter::Adapter;
 
-const READY_MSG: &str = "ok";
+const READY_MSG: &str = "ok"; // marlin firmware 'ready' message
+const SERIAL_TIMEOUT: u64 = 5; // seconds
 
 pub struct SerialAdapter {
     state: Arc<Mutex<SerialAdapterState>>,
@@ -103,13 +104,8 @@ impl Adapter for SerialAdapter {
         };
 
         // wait for the command to be executed
-        loop {
-            let data = SerialAdapter::read_serial_stream(state.stream.as_mut().unwrap()).await?;
-            if data.contains(READY_MSG) {
-                info!("Command executed successfully.");
-                break;
-            }
-        }
+        SerialAdapter::wait_until_printer_is_ready(state.stream.as_mut().unwrap()).await?;
+
 
         Ok(())
     }
@@ -220,6 +216,30 @@ impl SerialAdapter {
         Ok(received_data)
     }
 
+
+
+    /// Wait until the printer is ready to receive commands or until the timeout is reached
+    async fn wait_until_printer_is_ready(stream: &mut SerialStream) -> Result<(), AppError>
+    {
+        let start = std::time::Instant::now();
+
+        loop {
+            let data = SerialAdapter::read_serial_stream(stream).await?;
+            if data.contains(READY_MSG) {
+                info!("Printer is ready");
+                break;
+            }
+
+            if start.elapsed().as_secs() >= SERIAL_TIMEOUT {
+                error!("Printer serial stream timed out.");
+                return Err(AppError::AdapterError {
+                    message: "Printer serial stream timed out.".to_string(),
+                });
+            }
+        }
+        Ok(())
+    }
+
     /// Helper function to count the number of USB ports in the list of available ports
     async fn get_usb_port_count(ports: &[SerialPortInfo]) -> usize {
         ports
@@ -229,40 +249,4 @@ impl SerialAdapter {
     }
 }
 
-// let local_gcode_commands = gcode_parser::from_file("test_files/cube.gcode").await?;
-// let total_commands = local_gcode_commands.len();
-// info!("Test gcode written to memory, commands: {}", total_commands);
-// info!("Starting test print");
-//
-// let mut processed_commands_per_second = 0;
-// let mut time = std::time::Instant::now();
-//
-// for (i, command) in local_gcode_commands.iter().enumerate() {
-//     loop {
-//         let data = SerialCommunicationAdapter::read_serial_port(&mut open_port).await?;
-//         if data.contains("cold extrusion") {
-//             panic!("Cold extrusion error, aborting!")
-//         }
-//         if data.contains("ok") {
-//             break;
-//         }
-//     }
-//     SerialCommunicationAdapter::write_serial_port(&mut open_port, command.as_bytes())
-//         .await?;
-//     info!("Command sent: {}", command.trim());
-//     info!(
-//         "Progress {}/{}, {}%",
-//         i + 1,
-//         total_commands,
-//         ((i + 1) as f32 / total_commands as f32 * 100.0).round()
-//     );
-//
-//     processed_commands_per_second += 1;
-//     if processed_commands_per_second == 10 {
-//         let elapsed = time.elapsed().as_secs_f32();
-//         let commands_per_second = processed_commands_per_second as f32 / elapsed;
-//         info!("Commands/second: {}", commands_per_second);
-//         processed_commands_per_second = 0;
-//         time = std::time::Instant::now();
-//     }
-// }
+
