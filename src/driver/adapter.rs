@@ -5,7 +5,7 @@ use async_trait::async_trait;
 
 #[async_trait]
 pub trait Adapter: Sync + Send {
-    async fn is_connected(&self) -> bool;
+    async fn is_running(&self) -> bool;
     async fn configure(&mut self, printer: String) -> Result<(), AppError>;
     async fn start(&mut self) -> Result<(), AppError>;
     async fn stop(&mut self) -> Result<(), AppError>;

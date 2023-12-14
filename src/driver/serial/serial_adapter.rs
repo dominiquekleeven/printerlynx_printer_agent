@@ -40,7 +40,7 @@ impl Default for SerialAdapter {
 
 #[async_trait]
 impl Adapter for SerialAdapter {
-    async fn is_connected(&self) -> bool {
+    async fn is_running(&self) -> bool {
         let state = self.state.lock().await;
         state.running
     }
@@ -103,9 +103,7 @@ impl Adapter for SerialAdapter {
             }
         };
 
-        // wait for the command to be executed
         SerialAdapter::wait_until_printer_is_ready(state.stream.as_mut().unwrap()).await?;
-
 
         Ok(())
     }
@@ -215,7 +213,6 @@ impl SerialAdapter {
         }
         Ok(received_data)
     }
-
 
 
     /// Wait until the printer is ready to receive commands or until the timeout is reached

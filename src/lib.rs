@@ -43,7 +43,7 @@ pub async fn start_adapter(mut adapter: Box<dyn Adapter>) -> Result<(), AppError
     adapter.configure(serial_port).await?;
 
     loop {
-        if !adapter.is_connected().await {
+        if !adapter.is_running().await {
             info!("Adapter is not connected, attempting to connect");
             match adapter.start().await {
                 Ok(_) => {
