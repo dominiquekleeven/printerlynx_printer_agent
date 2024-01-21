@@ -27,9 +27,6 @@ struct SerialAdapterState {
 
 enum SerialAdapterStatus {
     Ready,
-    Printing,
-    Paused,
-    Error,
 }
 
 impl Default for SerialAdapter {
@@ -108,7 +105,7 @@ impl Adapter for SerialAdapter {
         Ok(())
     }
 
-    async fn start_print(&mut self, commands: Vec<String>) -> Result<(), AppError> {
+    async fn start_print(&mut self, _commands: Vec<String>) -> Result<(), AppError> {
         todo!()
     }
 

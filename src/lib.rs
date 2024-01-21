@@ -1,7 +1,5 @@
-use std::sync::Arc;
 
 use dotenvy::dotenv;
-use tokio::sync::Mutex;
 use tracing::{info, warn};
 
 use crate::common::app_error::AppError;
@@ -13,12 +11,6 @@ pub mod common;
 pub mod domain;
 pub mod driver;
 pub mod infra;
-
-//  app state
-pub struct AppState {
-    adapters: Arc<Mutex<Vec<Box<dyn Adapter>>>>,
-}
-
 
 
 pub async fn start() {
