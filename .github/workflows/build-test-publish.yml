@@ -40,14 +40,6 @@ jobs:
     - name: run-build
       run: cargo build --release
 
-  publish:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
     - name: list dir
       run: |
        ls ${{github.workspace}}
