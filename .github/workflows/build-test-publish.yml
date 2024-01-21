@@ -60,6 +60,7 @@ jobs:
         body: |
           Changes in this release:
           - Automated release - GitHub Actions
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload Release Asset
       id: upload-release-asset
