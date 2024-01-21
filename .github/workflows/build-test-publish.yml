@@ -38,7 +38,7 @@ jobs:
       run: cargo test
 
     - name: run-build
-      run: cargo build
+      run: cargo build --release
 
   publish:
     needs: build
