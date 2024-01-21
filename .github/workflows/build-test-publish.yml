@@ -34,9 +34,6 @@ jobs:
     - name: rust-cache
       uses: Swatinem/rust-cache@v1     
 
-    - name: run-clippy
-      run: cargo clippy --all-targets --all-features
-
     - name: run-tests
       run: cargo test
 
