@@ -5,16 +5,14 @@ pub enum GcodeCommand {
     AutoHome,
     AutoBedLeveling,
     SystemInfo,
-    DisplayMessage(String),
 }
 
 impl GcodeCommand {
-    pub fn value(&self) -> &[u8] {
+    pub fn value(&self) -> &str {
         match self {
-            GcodeCommand::AutoHome => b"G28\n",
-            GcodeCommand::AutoBedLeveling => b"G29\n",
-            GcodeCommand::SystemInfo => b"M115\n",
-            GcodeCommand::DisplayMessage(message) => message.as_bytes(),
+            GcodeCommand::AutoHome => "G28",
+            GcodeCommand::AutoBedLeveling => "G29",
+            GcodeCommand::SystemInfo => "M115",
         }
     }
 }

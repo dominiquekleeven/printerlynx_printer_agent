@@ -1,5 +1,5 @@
-use crate::adapters::agent_adapter::AgentAdapter;
+use crate::driver::adapter::Adapter;
 
 pub struct PrinterAgent {
-    pub adapter: Box<dyn AgentAdapter>,
+    pub adapter: Box<dyn Adapter>,
 }
