@@ -70,6 +70,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./target/release/printerlynx_printer_agent  
+        asset_path: ${{ github.workspace }}/target/release/printerlynx_printer_agent  
         asset_name: printerlynx_printer_agent  
         asset_content_type: application/octet-stream
